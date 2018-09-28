@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Eloquents\User;
 use App\Http\Controllers\Controller;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
+use Laravel\Socialite\Facades\Socialite;
 
 class LoginController extends Controller
 {
@@ -28,12 +30,55 @@ class LoginController extends Controller
     protected $redirectTo = '/home';
 
     /**
-     * Create a new controller instance.
-     *
-     * @return void
+     * @var User
      */
-    public function __construct()
+    private $userEloquent;
+
+    /**
+     * LoginController constructor.
+     * @param User $userEloquent
+     */
+    public function __construct(User $userEloquent)
     {
         $this->middleware('guest')->except('logout');
+        $this->userEloquent = $userEloquent;
+    }
+
+    public function socialLogin(string $social)
+    {
+        return Socialite::driver($social)->redirect();
+    }
+
+    public function socialCallback(string $social)
+    {
+        $userSocial = Socialite::driver($social)->user();
+
+        $email = $userSocial->getEmail();
+        $user = $this->getUserByEmail($email);
+
+        if (!$user) {
+            $user = $this->createUser([
+                'name' => $userSocial->getName(),
+                'email' => $email,
+                'google_token' => $userSocial->token,
+                'google_refresh_token' => $userSocial->refreshToken,
+            ]);
+        }
+        \Auth::login($user);
+        return redirect()->to($this->redirectTo);
+    }
+
+    /**
+     * @param string $email
+     * @return User|null
+     */
+    private function getUserByEmail(string $email): ?User
+    {
+        return $this->userEloquent->where(['email' => $email])->first();
+    }
+
+    private function createUser(array $userInfo): User
+    {
+        return $this->userEloquent->create($userInfo);
     }
 }

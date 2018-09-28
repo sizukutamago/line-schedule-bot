@@ -11,10 +11,12 @@
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
+Route::view('/', 'welcome')->name('index');
 
 Auth::routes();
+
+Route::get('/login/{social}', 'Auth\LoginController@socialLogin')->name('login.social');
+
+Route::get('/login/callback/{social}', 'Auth\LoginController@socialCallback')->name('login.social.callback');
 
 Route::get('/home', 'HomeController@index')->name('home');
