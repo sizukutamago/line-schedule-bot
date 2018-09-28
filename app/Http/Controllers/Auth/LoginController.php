@@ -44,17 +44,32 @@ class LoginController extends Controller
         $this->userEloquent = $userEloquent;
     }
 
-    public function socialLogin(string $social)
+    public function googleLogin()
     {
-        return Socialite::driver($social)->redirect();
+        if (!session('lineId')) {
+            return redirect()->route('login.social.line');
+        }
+        return Socialite::driver('google')->redirect();
     }
 
-    public function socialCallback(string $social)
+    public function lineLogin()
     {
-        $userSocial = Socialite::driver($social)->user();
+        return Socialite::driver('line')->redirect();
+    }
+
+    public function lineCallback()
+    {
+        $userSocial = Socialite::driver('line')->user();
+        session()->put(['lineId' => $userSocial->id]);
+        return redirect()->route('login.social.google');
+    }
+
+    public function googleCallback()
+    {
+        $userSocial = Socialite::driver('google')->user();
 
         $email = $userSocial->getEmail();
-        $user = $this->getUserByEmail($email);
+        $user = $this->getUser(['email' => $email]);
 
         if (!$user) {
             $user = $this->createUser([
@@ -62,6 +77,7 @@ class LoginController extends Controller
                 'email' => $email,
                 'google_token' => $userSocial->token,
                 'google_refresh_token' => $userSocial->refreshToken,
+                'line_id' => session('lineId'),
             ]);
         }
         \Auth::login($user);
@@ -69,12 +85,12 @@ class LoginController extends Controller
     }
 
     /**
-     * @param string $email
+     * @param array $where
      * @return User|null
      */
-    private function getUserByEmail(string $email): ?User
+    private function getUser(array $where): ?User
     {
-        return $this->userEloquent->where(['email' => $email])->first();
+        return $this->userEloquent->where($where)->first();
     }
 
     private function createUser(array $userInfo): User

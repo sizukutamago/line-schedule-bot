@@ -15,8 +15,12 @@ Route::view('/', 'welcome')->name('index');
 
 Auth::routes();
 
-Route::get('/login/{social}', 'Auth\LoginController@socialLogin')->name('login.social');
+Route::get('/login/google', 'Auth\LoginController@googleLogin')->name('login.social.google');
 
-Route::get('/login/callback/{social}', 'Auth\LoginController@socialCallback')->name('login.social.callback');
+Route::get('/login/callback/google', 'Auth\LoginController@googleCallback')->name('login.social.callback.google');
+
+Route::get('/login/line', 'Auth\LoginController@lineLogin')->name('login.social.line');
+
+Route::get('/login/callback/line', 'Auth\LoginController@lineCallback')->name('login.social.callback.line');
 
 Route::get('/home', 'HomeController@index')->name('home');
