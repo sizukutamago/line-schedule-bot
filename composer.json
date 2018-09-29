@@ -12,6 +12,7 @@
         "laravel/framework": "5.7.*",
         "laravel/socialite": "^3.1",
         "laravel/tinker": "^1.0",
+        "linecorp/line-bot-sdk": "^3.3",
         "socialiteproviders/line": "^2.1"
     },
     "require-dev": {
