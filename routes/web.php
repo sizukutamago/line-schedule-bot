@@ -24,3 +24,5 @@ Route::get('/login/line', 'Auth\LoginController@lineLogin')->name('login.social.
 Route::get('/login/callback/line', 'Auth\LoginController@lineCallback')->name('login.social.callback.line');
 
 Route::get('/home', 'HomeController@index')->name('home');
+
+Route::post('/webhook/line', 'LineController')->name('webhook.line');
