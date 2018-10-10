@@ -35,6 +35,6 @@ class LineMessageJob implements ShouldQueue
      */
     public function handle()
     {
-        //
+
     }
 }
